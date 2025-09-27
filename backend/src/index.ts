@@ -9,7 +9,7 @@ dotenv.config();
 const allowedOrigins = ['http://localhost:5173', process.env.FRONTEND_URL || ''];
 
 const app = express();
-const port = process.env.PORT || 3333;
+const port = process.env.PORT || 3334;
 
 app.use(cors({
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
@@ -78,6 +78,15 @@ app.get('/', (_req, res) => {
 });
 
 
-app.listen(port, () => {
+// Adicionar handler de erros para o Express
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('Error:', err);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
+
+// Adicionar tratamento de erros no servidor
+const server = app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
+}).on('error', (err) => {
+  console.error('Server error:', err);
 });
