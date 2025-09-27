@@ -3,7 +3,6 @@ import express from 'express';
 import dotenv from 'dotenv';
 import Stripe from 'stripe';
 import cors from 'cors';
-import { CorsCallback } from 'cors';
 
 dotenv.config();
 
@@ -13,7 +12,7 @@ const app = express();
 const port = process.env.PORT || 3333;
 
 app.use(cors({
-  origin: (origin: string | undefined, callback: CorsCallback) => {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
