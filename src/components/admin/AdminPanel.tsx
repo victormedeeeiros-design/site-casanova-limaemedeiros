@@ -20,7 +20,7 @@ export function AdminPanel() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3333/admin/stripe-products', {
+      const response = await fetch('http://localhost:3334/admin/stripe-products', {
         headers: {
           'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_TOKEN || 'admin123'}`
         }

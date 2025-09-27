@@ -13,7 +13,7 @@ export function AdminLogin() {
     e.preventDefault();
     try {
       // Verificar token com o backend
-      const response = await fetch('http://localhost:3333/admin/verify', {
+      const response = await fetch('http://localhost:3334/admin/verify', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

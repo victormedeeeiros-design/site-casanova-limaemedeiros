@@ -16,7 +16,7 @@ export const useAdminAuth = () => {
     }
 
     // Verificar token com o backend
-    fetch('http://localhost:3333/admin/verify', {
+    fetch('http://localhost:3334/admin/verify', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
