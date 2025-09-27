@@ -2,11 +2,26 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import Stripe from 'stripe';
+import cors from 'cors';
+import { CorsCallback } from 'cors';
 
 dotenv.config();
 
+const allowedOrigins = ['http://localhost:5173', process.env.FRONTEND_URL || ''];
+
 const app = express();
 const port = process.env.PORT || 3333;
+
+app.use(cors({
+  origin: (origin: string | undefined, callback: CorsCallback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 
 app.use(express.json());
 
@@ -29,6 +44,11 @@ function adminAuth(req: express.Request, res: express.Response, next: express.Ne
 }
 
 // Exemplo de rota protegida para gerenciar produtos do Stripe
+// Rota para verificar token de admin
+app.get('/admin/verify', adminAuth, (_req, res) => {
+  res.json({ valid: true });
+});
+
 app.get('/admin/stripe-products', adminAuth, async (_req, res) => {
   try {
     const products = await stripe.products.list({ limit: 20 });

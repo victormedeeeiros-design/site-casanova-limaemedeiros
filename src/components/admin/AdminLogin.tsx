@@ -1,0 +1,64 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
+export function AdminLogin() {
+  const [token, setToken] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // Verificar token com o backend
+      const response = await fetch('http://localhost:3333/admin/verify', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error('Token inválido');
+
+      localStorage.setItem('adminToken', token);
+      navigate('/admin');
+    } catch (err) {
+      setError('Token inválido. Tente novamente.');
+    }
+  };
+
+  return (
+    <div className="container mx-auto p-4 max-w-md">
+      <Card>
+        <CardHeader>
+          <CardTitle>Login Administrativo</CardTitle>
+          <CardDescription>Digite o token de acesso para continuar</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit}>
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                {error}
+              </div>
+            )}
+            
+            <div className="mb-4">
+              <Input
+                type="password"
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                placeholder="Token de acesso"
+                className="w-full"
+              />
+            </div>
+
+            <Button type="submit" className="w-full">
+              Entrar
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
