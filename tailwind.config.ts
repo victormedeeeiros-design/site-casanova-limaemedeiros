@@ -14,7 +14,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        'edwardian': ['Edwardian Script ITC', 'cursive'],
+        // Nova fonte para títulos e textos especiais (estilo cursivo)
+        'script': ['Great Vibes', 'cursive'],
+        // Nova fonte padrão para parágrafos e textos gerais
+        'sans': ['Inter', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

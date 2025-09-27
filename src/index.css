@@ -1,11 +1,11 @@
+/* Importação das fontes do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
+/* Definição do sistema de design */
 @layer base {
   :root {
     --background: 0 0% 98%;
@@ -105,6 +105,11 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-edwardian;
+    @apply bg-background text-foreground font-sans; /* Fonte padrão para o corpo */
+  }
+
+  /* Aplica a fonte cursiva para todos os títulos */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-script;
   }
 }
