@@ -10,7 +10,7 @@ const port = process.env.PORT || 3333;
 app.use(express.json());
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2022-11-15',
 });
 
 app.post('/create-checkout-session', async (req, res) => {
@@ -32,6 +32,7 @@ app.post('/create-checkout-session', async (req, res) => {
 app.get('/', (_req, res) => {
   res.send('Backend Stripe API is running');
 });
+
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
