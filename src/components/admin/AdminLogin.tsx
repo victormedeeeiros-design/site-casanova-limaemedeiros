@@ -12,10 +12,12 @@ export function AdminLogin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      console.log('Enviando token:', token); // Debug
       // Verificar token com o backend
       const response = await fetch('http://localhost:3334/admin/verify', {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
 

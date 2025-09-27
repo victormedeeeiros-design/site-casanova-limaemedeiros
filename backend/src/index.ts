@@ -3,6 +3,10 @@ import express from 'express';
 import dotenv from 'dotenv';
 import Stripe from 'stripe';
 import cors from 'cors';
+import { authController } from './controllers/auth';
+import { authMiddleware } from './middleware/auth';
+import { productController } from './controllers/product';
+import { uploadController } from './controllers/upload';
 
 dotenv.config();
 
@@ -31,14 +35,25 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 // Middleware para proteger rotas admin por token
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'admin123';
 function adminAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
+  console.log('Requisição recebida para rota protegida');
   const authHeader = req.headers.authorization;
+  console.log('Auth Header:', authHeader);
+  
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('Header inválido ou ausente');
     return res.status(401).json({ error: 'Unauthorized' });
   }
+  
   const token = authHeader.split(' ')[1];
+  console.log('Token recebido:', token);
+  console.log('Token esperado:', ADMIN_TOKEN);
+  
   if (token !== ADMIN_TOKEN) {
+    console.log('Token inválido');
     return res.status(403).json({ error: 'Forbidden' });
   }
+  
+  console.log('Token válido, autorizando...');
   next();
 }
 
@@ -72,6 +87,10 @@ app.post('/create-checkout-session', async (req, res) => {
     res.status(500).json({ error: 'Stripe session creation failed', details: error });
   }
 });
+
+// Rotas de upload
+app.post('/admin/upload', adminAuth, uploadController.uploadImage);
+app.delete('/admin/upload/:fileName', adminAuth, uploadController.deleteImage);
 
 app.get('/', (_req, res) => {
   res.send('Backend Stripe API is running');
