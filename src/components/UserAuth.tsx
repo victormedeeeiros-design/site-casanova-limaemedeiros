@@ -10,7 +10,23 @@ export const UserAuth = () => {
   const { user, loading } = useAuth();
   const { toast } = useToast();
 
+  // Verificar se Supabase está configurado
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+  const isSupabaseConfigured = supabaseUrl && supabaseAnonKey && 
+                              !supabaseUrl.includes('placeholder') && 
+                              !supabaseAnonKey.includes('placeholder')
+
   const handleGoogleSignIn = async () => {
+    if (!isSupabaseConfigured) {
+      toast({
+        title: "Configuração necessária",
+        description: "Configure as variáveis VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY para habilitar o login.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { error } = await signInWithGoogle();
       if (error) {
@@ -56,6 +72,36 @@ export const UserAuth = () => {
         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
         <span>Carregando...</span>
       </div>
+    );
+  }
+
+  if (!isSupabaseConfigured) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader className="text-center">
+          <CardTitle className="flex items-center justify-center gap-2 text-orange-600">
+            <LogIn className="w-5 h-5" />
+            Configuração Necessária
+          </CardTitle>
+          <CardDescription>
+            Configure o Supabase para habilitar o login com Google
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center space-y-2">
+            <p className="text-sm text-muted-foreground">
+              Para ativar o login de usuário, configure:
+            </p>
+            <code className="text-xs bg-gray-100 p-2 rounded block">
+              VITE_SUPABASE_URL<br/>
+              VITE_SUPABASE_ANON_KEY
+            </code>
+            <p className="text-xs text-muted-foreground">
+              Veja o arquivo .env.example para referência
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
