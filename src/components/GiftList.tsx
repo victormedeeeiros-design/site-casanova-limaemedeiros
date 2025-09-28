@@ -231,19 +231,6 @@ const GiftList = () => {
             {/* Login de usuário */}
             {!user && (
               <div className="flex gap-2">
-                <Dialog open={showUserLogin} onOpenChange={setShowUserLogin}>
-                  <DialogTrigger asChild>
-                    <Button variant="default" className="gap-2">
-                      Entrar como Usuário
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Login de Usuário</DialogTitle>
-                    </DialogHeader>
-                    <UserAuth />
-                  </DialogContent>
-                </Dialog>
               </div>
             )}
 
