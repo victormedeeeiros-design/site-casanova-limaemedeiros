@@ -18,6 +18,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
+import { BACKEND_URL } from '@/config';
 
 interface Product {
   id: string;
@@ -37,7 +38,7 @@ export function ProductManagement() {
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch('http://localhost:3334/admin/products', {
+      const response = await fetch(`${BACKEND_URL}/admin/products`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -75,8 +76,8 @@ export function ProductManagement() {
     try {
       const token = localStorage.getItem('adminToken');
       const url = editingProduct
-        ? `http://localhost:3334/admin/products/${editingProduct.id}`
-        : 'http://localhost:3334/admin/products';
+        ? `${BACKEND_URL}/admin/products/${editingProduct.id}`
+        : `${BACKEND_URL}/admin/products`;
       
       const response = await fetch(url, {
         method: editingProduct ? 'PUT' : 'POST',
@@ -112,7 +113,7 @@ export function ProductManagement() {
 
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`http://localhost:3334/admin/products/${id}`, {
+      const response = await fetch(`${BACKEND_URL}/admin/products/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

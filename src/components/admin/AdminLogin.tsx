@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { BACKEND_URL } from '@/config';
 
 export function AdminLogin() {
   const [token, setToken] = useState('');
@@ -14,7 +15,7 @@ export function AdminLogin() {
     try {
       console.log('Enviando token:', token); // Debug
       // Verificar token com o backend
-      const response = await fetch('http://localhost:3334/admin/verify', {
+      const response = await fetch(`${BACKEND_URL}/admin/verify`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

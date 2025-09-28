@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { BACKEND_URL } from '@/config';
 
 export const useAdminAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -16,7 +17,7 @@ export const useAdminAuth = () => {
     }
 
     // Verificar token com o backend
-    fetch('http://localhost:3334/admin/verify', {
+    fetch(`${BACKEND_URL}/admin/verify`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }

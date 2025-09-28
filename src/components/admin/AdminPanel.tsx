@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { BACKEND_URL, ADMIN_TOKEN } from '@/config';
 
 interface Product {
   id: string;
@@ -20,9 +21,9 @@ export function AdminPanel() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3334/admin/stripe-products', {
+      const response = await fetch(`${BACKEND_URL}/admin/stripe-products`, {
         headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_TOKEN || 'admin123'}`
+          'Authorization': `Bearer ${ADMIN_TOKEN}`
         }
       });
       
@@ -31,7 +32,18 @@ export function AdminPanel() {
       const data = await response.json();
       setProducts(data.data || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar produtos');
+      console.error('Erro ao conectar com backend:', err);
+      const isNetworkError = err instanceof Error && (
+        err.message.includes('fetch') || 
+        err.message.includes('Network') || 
+        err.message.includes('ERR_CONNECTION_REFUSED')
+      );
+      
+      if (isNetworkError) {
+        setError('Backend não disponível. Verifique se o servidor está rodando.');
+      } else {
+        setError(err instanceof Error ? err.message : 'Erro ao carregar produtos');
+      }
     } finally {
       setLoading(false);
     }

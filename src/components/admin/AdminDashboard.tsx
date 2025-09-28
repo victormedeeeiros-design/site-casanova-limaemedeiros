@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { ProductManagement } from './ProductManagement';
+import { BACKEND_URL } from '@/config';
 
 export function AdminDashboard() {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ export function AdminDashboard() {
     }
 
     // Verificar token
-    fetch('http://localhost:3334/admin/profile', {
+    fetch(`${BACKEND_URL}/admin/profile`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
