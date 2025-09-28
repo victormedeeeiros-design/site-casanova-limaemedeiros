@@ -105,11 +105,6 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans; /* Fonte padrão para o corpo */
-  }
-
-  /* Aplica a fonte cursiva para todos os títulos */
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-script;
+    @apply bg-background text-foreground font-sans;
   }
 }
