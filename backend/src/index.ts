@@ -8,6 +8,7 @@ import { authMiddleware } from './middleware/auth';
 import { productController } from './controllers/product';
 import { uploadController } from './controllers/upload';
 import { supabase } from './config/supabase';
+import { giftsList } from './data/gifts';
 
 dotenv.config();
 
@@ -133,12 +134,8 @@ app.post('/admin/sync-products', adminAuth, async (req: Request, res: Response) 
       apiVersion: '2022-11-15',
     });
 
-    // Lista de produtos para sincronizar (em produção, buscar do banco)
-    const giftsToSync = [
-      { id: "1", name: "Micro-ondas", price: 450, description: "Micro-ondas moderno" },
-      { id: "2", name: "Coifa", price: 350, description: "Coifa para cozinha" },
-      // Adicionar mais produtos conforme necessário
-    ];
+    // Lista de produtos para sincronizar (agora usando a lista completa)
+    const giftsToSync = giftsList;
 
     let syncedCount = 0;
 

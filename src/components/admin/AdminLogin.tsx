@@ -47,17 +47,22 @@ export function AdminLogin() {
             )}
             
             <div className="mb-4">
+              <label htmlFor="token" className="block text-sm font-medium text-gray-700 mb-2">
+                Token de Administrador
+              </label>
               <Input
+                id="token"
                 type="password"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
-                placeholder="Token de acesso"
+                placeholder="Digite o token de acesso"
                 className="w-full"
+                required
               />
             </div>
 
-            <Button type="submit" className="w-full">
-              Entrar
+            <Button type="submit" className="w-full" disabled={!token.trim()}>
+              Entrar como Administrador
             </Button>
           </form>
         </CardContent>

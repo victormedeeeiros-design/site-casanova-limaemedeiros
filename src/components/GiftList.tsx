@@ -7,6 +7,7 @@ import { Gift, ShoppingCart, ExternalLink, Settings, Loader2 } from "lucide-reac
 import { useGifts, GiftItem } from "@/hooks/useGifts";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { signOut } from "@/lib/supabase";
 import { UserAuth } from "./UserAuth";
 import StripeProductManager from "./StripeProductManager";
 
@@ -195,7 +196,6 @@ const categories = ["Eletrodomésticos", "Utensílios", "Mesa e Decoração", "O
 const GiftList = () => {
   const [gifts, setGifts] = useState<GiftItem[]>(initialGifts);
   const [showManager, setShowManager] = useState(false);
-  const [showUserLogin, setShowUserLogin] = useState(false);
   const { handlePurchase, loading } = useGifts();
   const { user } = useAuth();
   
@@ -228,16 +228,38 @@ const GiftList = () => {
           </p>
           
           <div className="mt-6 flex flex-col items-center gap-4">
-            {/* Login de usuário */}
+            {/* Login de usuário - apenas botão simples */}
             {!user && (
               <div className="flex gap-2">
+                <Button 
+                  onClick={() => window.location.href = '/login'}
+                  variant="default" 
+                  className="gap-2"
+                >
+                  Entrar como Usuário
+                </Button>
               </div>
             )}
 
-            {/* Exibir informações do usuário logado */}
+            {/* Exibir informações do usuário logado - versão compacta */}
             {user && (
               <div className="text-center">
-                <UserAuth />
+                <div className="flex items-center justify-center space-x-4 bg-green-50 p-3 rounded-lg">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm font-medium">
+                      Logado como {user.user_metadata?.full_name || user.email}
+                    </span>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => signOut()}
+                    className="text-xs"
+                  >
+                    Sair
+                  </Button>
+                </div>
               </div>
             )}
 
