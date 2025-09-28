@@ -1,5 +1,5 @@
 
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import Stripe from 'stripe';
 import cors from 'cors';
@@ -28,23 +28,21 @@ app.use(cors({
 
 app.use(express.json());
 
+// Health check route
+app.get('/health', (_req: Request, res: Response) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2022-11-15',
 });
 
 // Middleware para proteger rotas admin por token
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'admin123';
-function adminAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
-  console.log('Requisição recebida para rota protegida');
-  const authHeader = req.headers.authorization;
-  console.log('Auth Header:', authHeader);
+function adminAuth(req: Request, res: Response, next: NextFunction) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
   
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    console.log('Header inválido ou ausente');
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-  
-  const token = authHeader.split(' ')[1];
+  console.log('Authorization header:', req.headers.authorization);
   console.log('Token recebido:', token);
   console.log('Token esperado:', ADMIN_TOKEN);
   
@@ -59,11 +57,11 @@ function adminAuth(req: express.Request, res: express.Response, next: express.Ne
 
 // Exemplo de rota protegida para gerenciar produtos do Stripe
 // Rota para verificar token de admin
-app.get('/admin/verify', adminAuth, (_req, res) => {
+app.get('/admin/verify', adminAuth, (_req: Request, res: Response) => {
   res.json({ valid: true });
 });
 
-app.get('/admin/stripe-products', adminAuth, async (_req, res) => {
+app.get('/admin/stripe-products', adminAuth, async (_req: Request, res: Response) => {
   try {
     const products = await stripe.products.list({ limit: 20 });
     res.json(products);
@@ -72,7 +70,7 @@ app.get('/admin/stripe-products', adminAuth, async (_req, res) => {
   }
 });
 
-app.post('/create-checkout-session', async (req, res) => {
+app.post('/create-checkout-session', async (req: Request, res: Response) => {
   try {
     const { line_items, success_url, cancel_url } = req.body;
     const session = await stripe.checkout.sessions.create({
@@ -92,8 +90,8 @@ app.post('/create-checkout-session', async (req, res) => {
 app.post('/admin/upload', adminAuth, uploadController.uploadImage);
 app.delete('/admin/upload/:fileName', adminAuth, uploadController.deleteImage);
 
-app.get('/', (_req, res) => {
-  res.send('Backend Stripe API is running');
+app.get('/', (_req: Request, res: Response) => {
+  res.json({ message: 'Casanova Lima e Medeiros Backend API' });
 });
 
 
@@ -106,6 +104,6 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 // Adicionar tratamento de erros no servidor
 const server = app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
-}).on('error', (err) => {
+}).on('error', (err: any) => {
   console.error('Server error:', err);
 });
