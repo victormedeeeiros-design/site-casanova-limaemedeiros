@@ -7,6 +7,7 @@ import { authController } from './controllers/auth';
 import { authMiddleware } from './middleware/auth';
 import { productController } from './controllers/product';
 import { uploadController } from './controllers/upload';
+import { supabase } from './config/supabase';
 
 dotenv.config();
 
@@ -83,6 +84,103 @@ app.post('/create-checkout-session', async (req: Request, res: Response) => {
     res.json({ id: session.id, url: session.url });
   } catch (error) {
     res.status(500).json({ error: 'Stripe session creation failed', details: error });
+  }
+});
+
+// Rotas de configuração do Stripe
+app.post('/admin/stripe-config', adminAuth, async (req: Request, res: Response) => {
+  try {
+    const { stripe_secret_key } = req.body;
+    
+    if (!stripe_secret_key) {
+      return res.status(400).json({ error: 'Chave secreta do Stripe é obrigatória' });
+    }
+
+    // Salvar configuração no Supabase
+    const { error } = await supabase
+      .from('settings')
+      .upsert({ 
+        id: 'stripe_config', 
+        stripe_secret_key,
+        updated_at: new Date().toISOString()
+      });
+
+    if (error) throw error;
+
+    res.json({ message: 'Configuração salva com sucesso' });
+  } catch (error) {
+    console.error('Erro ao salvar configuração:', error);
+    res.status(500).json({ error: 'Erro ao salvar configuração' });
+  }
+});
+
+// Rota para sincronizar todos os produtos
+app.post('/admin/sync-products', adminAuth, async (req: Request, res: Response) => {
+  try {
+    // Buscar configuração do Stripe
+    const { data: settings } = await supabase
+      .from('settings')
+      .select('stripe_secret_key')
+      .eq('id', 'stripe_config')
+      .single();
+
+    if (!settings?.stripe_secret_key) {
+      return res.status(400).json({ error: 'Chave do Stripe não configurada' });
+    }
+
+    // Inicializar Stripe com a chave configurada
+    const stripeWithKey = new Stripe(settings.stripe_secret_key, {
+      apiVersion: '2022-11-15',
+    });
+
+    // Lista de produtos para sincronizar (em produção, buscar do banco)
+    const giftsToSync = [
+      { id: "1", name: "Micro-ondas", price: 450, description: "Micro-ondas moderno" },
+      { id: "2", name: "Coifa", price: 350, description: "Coifa para cozinha" },
+      // Adicionar mais produtos conforme necessário
+    ];
+
+    let syncedCount = 0;
+
+    for (const gift of giftsToSync) {
+      try {
+        // Criar produto no Stripe
+        const stripeProduct = await stripeWithKey.products.create({
+          name: gift.name,
+          description: gift.description,
+        });
+
+        // Criar preço no Stripe
+        const stripePrice = await stripeWithKey.prices.create({
+          product: stripeProduct.id,
+          unit_amount: Math.round(gift.price * 100),
+          currency: 'brl',
+        });
+
+        // Salvar no Supabase
+        await supabase.from('products').upsert({
+          id: gift.id,
+          name: gift.name,
+          description: gift.description,
+          price: gift.price,
+          stripe_product_id: stripeProduct.id,
+          stripe_price_id: stripePrice.id,
+          status: 'active'
+        });
+
+        syncedCount++;
+      } catch (error) {
+        console.error(`Erro ao sincronizar produto ${gift.name}:`, error);
+      }
+    }
+
+    res.json({ 
+      message: 'Sincronização concluída',
+      syncedCount 
+    });
+  } catch (error) {
+    console.error('Erro na sincronização:', error);
+    res.status(500).json({ error: 'Erro na sincronização de produtos' });
   }
 });
 

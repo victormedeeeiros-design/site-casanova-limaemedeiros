@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Gift, ShoppingCart, ExternalLink, Settings, Loader2 } from "lucide-react";
 import { useGifts, GiftItem } from "@/hooks/useGifts";
+import { useAuth } from "@/hooks/useAuth";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { UserAuth } from "./UserAuth";
 import StripeProductManager from "./StripeProductManager";
 
 // Eletrodomésticos
@@ -192,7 +195,12 @@ const categories = ["Eletrodomésticos", "Utensílios", "Mesa e Decoração", "O
 const GiftList = () => {
   const [gifts, setGifts] = useState<GiftItem[]>(initialGifts);
   const [showManager, setShowManager] = useState(false);
+  const [showUserLogin, setShowUserLogin] = useState(false);
   const { handlePurchase, loading } = useGifts();
+  const { user } = useAuth();
+  
+  // Verificar se é admin (usando localStorage para manter compatibilidade)
+  const isAdmin = localStorage.getItem('adminToken') !== null;
 
   const updateGift = (giftId: string, updates: Partial<GiftItem>) => {
     setGifts(prev => prev.map(gift => 
@@ -219,21 +227,50 @@ const GiftList = () => {
             Você pode contribuir com o valor do presente através do Stripe.
           </p>
           
-          <div className="mt-6">
-            <Dialog open={showManager} onOpenChange={setShowManager}>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                  <Settings className="w-4 h-4" />
-                  Gerenciar Produtos Stripe
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Gerenciador de Produtos Stripe</DialogTitle>
-                </DialogHeader>
-                <StripeProductManager gifts={gifts} onUpdateGift={updateGift} />
-              </DialogContent>
-            </Dialog>
+          <div className="mt-6 flex flex-col items-center gap-4">
+            {/* Login de usuário */}
+            {!user && (
+              <div className="flex gap-2">
+                <Dialog open={showUserLogin} onOpenChange={setShowUserLogin}>
+                  <DialogTrigger asChild>
+                    <Button variant="default" className="gap-2">
+                      Entrar como Usuário
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Login de Usuário</DialogTitle>
+                    </DialogHeader>
+                    <UserAuth />
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
+
+            {/* Exibir informações do usuário logado */}
+            {user && (
+              <div className="text-center">
+                <UserAuth />
+              </div>
+            )}
+
+            {/* Gerenciador Stripe - APENAS para admins */}
+            {isAdmin && (
+              <Dialog open={showManager} onOpenChange={setShowManager}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <Settings className="w-4 h-4" />
+                    Gerenciar Produtos Stripe
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Gerenciador de Produtos Stripe</DialogTitle>
+                  </DialogHeader>
+                  <StripeProductManager gifts={gifts} onUpdateGift={updateGift} />
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         </div>
 
